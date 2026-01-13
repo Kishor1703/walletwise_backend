@@ -5,7 +5,7 @@ const transactionSchema = new mongoose.Schema({
   user: { type: mongoose.Schema.Types.ObjectId, ref: 'User', required: true },
 
   amount: { type: String, required: true }, // 🔐 encrypted
-  category: { type: String },               // 🔐 encrypted
+  // category: { type: String },               // 🔐 encrypted
   type: { type: String, required: true },   // 🔐 encrypted
   description: { type: String },             // 🔐 encrypted
   person: { type: String, required: true },  // 🔐 encrypted
@@ -17,7 +17,7 @@ const transactionSchema = new mongoose.Schema({
 /* 🔐 Encrypt BEFORE saving to DB */
 transactionSchema.pre('save', function (next) {
   this.amount = encrypt(this.amount.toString());
-  this.category = encrypt(this.category);
+  // this.category = encrypt(this.category);
   this.type = encrypt(this.type);
   this.description = encrypt(this.description);
   this.person = encrypt(this.person);
@@ -29,7 +29,7 @@ transactionSchema.methods.toJSON = function () {
   const obj = this.toObject();
 
   obj.amount = Number(decrypt(obj.amount));
-  obj.category = decrypt(obj.category);
+  // obj.category = decrypt(obj.category);
   obj.type = decrypt(obj.type);
   obj.description = decrypt(obj.description);
   obj.person = decrypt(obj.person);
