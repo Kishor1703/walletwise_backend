@@ -7,7 +7,7 @@ const User = require('../models/User');
 
 // Register
 router.post('/register', async (req, res) => {
-    const { username, password, email } = req.body;
+    const { username, password } = req.body;
     try {
         let user = await User.findOne({ username });
         if (user) {
@@ -16,7 +16,7 @@ router.post('/register', async (req, res) => {
         user = new User({
             username,
             password,
-            email
+            // email
         });
         const salt = await bcrypt.genSalt(10);
         user.password = await bcrypt.hash(password, salt);
