@@ -1,3 +1,7 @@
+
+const dns = require('dns');
+
+dns.setServers(['8.8.8.8'],['8.8.4.4']);
 const express = require('express');
 const mongoose = require('mongoose');
 const bodyParser = require('body-parser');
@@ -40,13 +44,8 @@ app.options('*', cors(corsOptions)); // Handle preflight requests
 app.use('/api/auth', require('./routes/auth'));
 app.use('/api/transactions', require('./routes/transactions'));
 
-require('dotenv').config();
-
 // Database connection
-mongoose.connect(process.env.URI, {
-    useNewUrlParser: true,
-    useUnifiedTopology: true
-})
+mongoose.connect(process.env.URI)
 .then(() => console.log('MongoDB connected'))
 .catch(err => console.log(err));
 
