@@ -47,11 +47,16 @@ transactionSchema.pre('save', function (next) {
 transactionSchema.methods.toJSON = function () {
   const obj = this.toObject();
 
-  obj.amount = Number(decrypt(obj.amount));
-  // obj.category = obj.category ? decrypt(obj.category) : obj.category;
-  obj.type = decrypt(obj.type);
-  obj.description = obj.description ? decrypt(obj.description) : obj.description;
-  obj.person = decrypt(obj.person);
+  try {
+    obj.amount = Number(decrypt(obj.amount));
+    // obj.category = obj.category ? decrypt(obj.category) : obj.category;
+    obj.type = decrypt(obj.type);
+    obj.description = obj.description ? decrypt(obj.description) : obj.description;
+    obj.person = decrypt(obj.person);
+  } catch (err) {
+    console.error('Error decrypting transaction fields:', err);
+    throw new Error('Failed to decrypt transaction data');
+  }
 
   return obj;
 };
