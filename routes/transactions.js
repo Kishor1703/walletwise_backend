@@ -6,23 +6,40 @@ const Transaction = require('../models/Transaction');
 
 // Add transaction
 router.post('/', auth, async (req, res) => {
-    const { amount, category, type, description, person } = req.body;
-    try {
-      const newTransaction = new Transaction({
-        user: req.user.id,
-        amount,
-        category,
-        type,
-        description,
-        person,
-      });
-      const transaction = await newTransaction.save();
-      res.json(transaction);
-    } catch (err) {
-      console.error(err.message);
-      res.status(500).send('Server error');
-    }
-  });
+  const { amount, category, type, description, person } = req.body;
+
+  if (amount === undefined || amount === null || amount === '') {
+    return res.status(400).json({ message: 'Amount is required' });
+  }
+
+  if (!type) {
+    return res.status(400).json({ message: 'Type is required' });
+  }
+
+  if (!person || !person.trim()) {
+    return res.status(400).json({ message: 'Person is required' });
+  }
+
+  try {
+    const newTransaction = new Transaction({
+      user: req.user.id,
+      amount,
+      category,
+      type,
+      description,
+      person: person.trim(),
+    });
+
+    const transaction = await newTransaction.save();
+    res.json(transaction);
+  } catch (err) {
+    console.error('Error creating transaction:', err);
+    res.status(500).json({
+      message: 'Failed to add transaction',
+      error: err.message,
+    });
+  }
+});
   
   // Get all transactions
   router.get('/', auth, async (req, res) => {
@@ -30,13 +47,13 @@ router.post('/', auth, async (req, res) => {
       const transactions = await Transaction.find({ user: req.user.id }).sort({ createdAt: -1 });
       res.json(transactions);
     } catch (err) {
-      console.error(err.message);
-      res.status(500).send('Server error');
+      console.error('Error fetching transactions:', err);
+      res.status(500).json({ message: 'Failed to fetch transactions', error: err.message });
     }
   });
   
  // Delete transaction
-router.delete('/:id', auth, async (req, res) => {
+  router.delete('/:id', auth, async (req, res) => {
     try {
       const transaction = await Transaction.findById(req.params.id);
       if (!transaction || transaction.user.toString() !== req.user.id) {
@@ -45,8 +62,8 @@ router.delete('/:id', auth, async (req, res) => {
       await transaction.deleteOne(); // Use deleteOne instead of remove
       res.json({ message: 'Transaction removed' });
     } catch (err) {
-      console.error(`Error deleting transaction for user ${req.user.id}:`, err.message);
-      res.status(500).send('Server error');
+      console.error(`Error deleting transaction for user ${req.user.id}:`, err);
+      res.status(500).json({ message: 'Failed to delete transaction', error: err.message });
     }
   });
   
