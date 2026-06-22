@@ -1,23 +1,27 @@
 const crypto = require('crypto');
 
 const algorithm = 'aes-256-cbc';
-const encryptionKeyHex = process.env.ENCRYPTION_KEY;
-if (!encryptionKeyHex) {
-  throw new Error('ENCRYPTION_KEY is not set');
-}
-
-const key = Buffer.from(encryptionKeyHex, 'hex');
-if (key.length !== 32) {
-  throw new Error('ENCRYPTION_KEY must be a 64-character hex string');
-}
-
 const ivLength = 16;
+
+const getKey = () => {
+  const encryptionKeyHex = process.env.ENCRYPTION_KEY;
+  if (!encryptionKeyHex) {
+    throw new Error('ENCRYPTION_KEY is not set');
+  }
+
+  const key = Buffer.from(encryptionKeyHex, 'hex');
+  if (key.length !== 32) {
+    throw new Error('ENCRYPTION_KEY must be a 64-character hex string');
+  }
+
+  return key;
+};
 
 exports.encrypt = (text) => {
   if (text === undefined || text === null || text === '') return text;
 
   const iv = crypto.randomBytes(ivLength);
-  const cipher = crypto.createCipheriv(algorithm, key, iv);
+  const cipher = crypto.createCipheriv(algorithm, getKey(), iv);
 
   let encrypted = cipher.update(text.toString(), 'utf8', 'hex');
   encrypted += cipher.final('hex');
@@ -34,7 +38,7 @@ exports.decrypt = (text) => {
   }
   const iv = Buffer.from(ivHex, 'hex');
 
-  const decipher = crypto.createDecipheriv(algorithm, key, iv);
+  const decipher = crypto.createDecipheriv(algorithm, getKey(), iv);
   let decrypted = decipher.update(encryptedText, 'hex', 'utf8');
   decrypted += decipher.final('utf8');
 
