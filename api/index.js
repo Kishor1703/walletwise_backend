@@ -1,12 +1,13 @@
 const dns = require("dns");
 dns.setServers(["8.8.8.8", "8.8.4.4"]);
+const path = require('path');
 const express = require('express');
 const mongoose = require('mongoose');
 const bodyParser = require('body-parser');
 const cors = require('cors');
 const config = require('../config/config');
 const app = express();
-require('dotenv').config();
+require('dotenv').config({ path: path.join(__dirname, '.env') });
 
 // Middleware
 app.use(bodyParser.json());

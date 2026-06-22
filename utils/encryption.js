@@ -1,7 +1,16 @@
 const crypto = require('crypto');
 
 const algorithm = 'aes-256-cbc';
-const key = Buffer.from(process.env.ENCRYPTION_KEY, 'hex'); // 32 bytes
+const encryptionKeyHex = process.env.ENCRYPTION_KEY;
+if (!encryptionKeyHex) {
+  throw new Error('ENCRYPTION_KEY is not set');
+}
+
+const key = Buffer.from(encryptionKeyHex, 'hex');
+if (key.length !== 32) {
+  throw new Error('ENCRYPTION_KEY must be a 64-character hex string');
+}
+
 const ivLength = 16;
 
 exports.encrypt = (text) => {
