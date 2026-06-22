@@ -14,7 +14,7 @@ if (key.length !== 32) {
 const ivLength = 16;
 
 exports.encrypt = (text) => {
-  if (!text) return text;
+  if (text === undefined || text === null || text === '') return text;
 
   const iv = crypto.randomBytes(ivLength);
   const cipher = crypto.createCipheriv(algorithm, key, iv);
@@ -26,9 +26,12 @@ exports.encrypt = (text) => {
 };
 
 exports.decrypt = (text) => {
-  if (!text) return text;
+  if (text === undefined || text === null || text === '') return text;
 
   const [ivHex, encryptedText] = text.split(':');
+  if (!ivHex || !encryptedText) {
+    throw new Error('Invalid encrypted payload format');
+  }
   const iv = Buffer.from(ivHex, 'hex');
 
   const decipher = crypto.createDecipheriv(algorithm, key, iv);

@@ -6,28 +6,31 @@ const Transaction = require('../models/Transaction');
 
 // Add transaction
 router.post('/', auth, async (req, res) => {
-  const { amount, category, type, description, person } = req.body;
+  const { amount, type, description, person } = req.body;
+  const normalizedAmount = Number(amount);
+  const normalizedType = typeof type === 'string' ? type.trim() : '';
+  const normalizedDescription = typeof description === 'string' ? description.trim() : '';
+  const normalizedPerson = typeof person === 'string' ? person.trim() : '';
 
-  if (amount === undefined || amount === null || amount === '') {
+  if (amount === undefined || amount === null || amount === '' || Number.isNaN(normalizedAmount) || normalizedAmount <= 0) {
     return res.status(400).json({ message: 'Amount is required' });
   }
 
-  if (!type) {
+  if (!normalizedType) {
     return res.status(400).json({ message: 'Type is required' });
   }
 
-  if (!person || !person.trim()) {
+  if (!normalizedPerson) {
     return res.status(400).json({ message: 'Person is required' });
   }
 
   try {
     const newTransaction = new Transaction({
       user: req.user.id,
-      amount,
-      category,
-      type,
-      description,
-      person: person.trim(),
+      amount: normalizedAmount.toString(),
+      type: normalizedType,
+      description: normalizedDescription || undefined,
+      person: normalizedPerson,
     });
 
     const transaction = await newTransaction.save();
